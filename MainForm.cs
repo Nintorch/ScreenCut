@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 
 namespace ScreenCut
 {
-    public partial class Form1 : Form
+    public partial class MainForm : Form
     {
         // TODO: fix multiple screen support
         // TODO: make the code cleaner
@@ -23,6 +23,7 @@ namespace ScreenCut
 
         // TODO: Rectangle tool: stroke mode or fill mode
         // TODO: censor tool: rectangle mode and custom - several levels of blurriness
+        // TODO: arrow tool
 
         // DLL libraries used to manage hotkeys
         [DllImport("user32.dll")]
@@ -64,7 +65,7 @@ namespace ScreenCut
         private Size currentScreenSize = Screen.PrimaryScreen.Bounds.Size;
 
         // Initialize form
-        public Form1()
+        public MainForm()
         {
             InitializeComponent();
             SetStyle(ControlStyles.AllPaintingInWmPaint |

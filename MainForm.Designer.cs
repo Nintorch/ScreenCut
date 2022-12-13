@@ -61,7 +61,7 @@
             this.lbDraw.Name = "lbDraw";
             this.lbDraw.Size = new System.Drawing.Size(52, 52);
             this.lbDraw.TabIndex = 0;
-            this.lbDraw.SelectedIndexChanged += new System.EventHandler(this.lbDraw_SelectedIndexChanged);
+            this.lbDraw.SelectedIndexChanged += new System.EventHandler(this.LbDraw_SelectedIndexChanged);
             // 
             // pDrawSettings
             // 
@@ -89,7 +89,7 @@
             this.bCopy.TabIndex = 5;
             this.bCopy.Text = "Copy";
             this.bCopy.UseVisualStyleBackColor = true;
-            this.bCopy.Click += new System.EventHandler(this.bCopy_Click);
+            this.bCopy.Click += new System.EventHandler(this.BCopy_Click);
             // 
             // bSave
             // 
@@ -100,7 +100,7 @@
             this.bSave.TabIndex = 4;
             this.bSave.Text = "Save";
             this.bSave.UseVisualStyleBackColor = true;
-            this.bSave.Click += new System.EventHandler(this.bSave_Click);
+            this.bSave.Click += new System.EventHandler(this.BSave_Click);
             // 
             // label1
             // 
@@ -126,7 +126,7 @@
             0,
             0,
             0});
-            this.nWidth.ValueChanged += new System.EventHandler(this.nWidth_ValueChanged);
+            this.nWidth.ValueChanged += new System.EventHandler(this.NWidth_ValueChanged);
             // 
             // button1
             // 
@@ -137,7 +137,7 @@
             this.button1.TabIndex = 1;
             this.button1.Text = "Color";
             this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.button1.Click += new System.EventHandler(this.Button1_Click);
             // 
             // tbText
             // 
@@ -147,7 +147,7 @@
             this.tbText.Size = new System.Drawing.Size(505, 22);
             this.tbText.TabIndex = 2;
             this.tbText.Visible = false;
-            this.tbText.KeyDown += new System.Windows.Forms.KeyEventHandler(this.tbText_KeyDown);
+            this.tbText.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TbText_KeyDown);
             // 
             // lSize
             // 

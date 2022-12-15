@@ -55,11 +55,14 @@
             this.lbDraw.Items.AddRange(new object[] {
             "Draw",
             "Line",
-            "Text"});
+            "Text",
+            "Rectangle",
+            "Arrow",
+            "Color Picker"});
             this.lbDraw.Location = new System.Drawing.Point(5, 87);
-            this.lbDraw.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.lbDraw.Margin = new System.Windows.Forms.Padding(4);
             this.lbDraw.Name = "lbDraw";
-            this.lbDraw.Size = new System.Drawing.Size(52, 52);
+            this.lbDraw.Size = new System.Drawing.Size(92, 100);
             this.lbDraw.TabIndex = 0;
             this.lbDraw.SelectedIndexChanged += new System.EventHandler(this.LbDraw_SelectedIndexChanged);
             // 
@@ -74,7 +77,7 @@
             this.pDrawSettings.Controls.Add(this.lbDraw);
             this.pDrawSettings.ImeMode = System.Windows.Forms.ImeMode.Off;
             this.pDrawSettings.Location = new System.Drawing.Point(52, 50);
-            this.pDrawSettings.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.pDrawSettings.Margin = new System.Windows.Forms.Padding(4);
             this.pDrawSettings.Name = "pDrawSettings";
             this.pDrawSettings.Size = new System.Drawing.Size(160, 324);
             this.pDrawSettings.TabIndex = 1;
@@ -82,8 +85,8 @@
             // 
             // bCopy
             // 
-            this.bCopy.Location = new System.Drawing.Point(5, 183);
-            this.bCopy.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.bCopy.Location = new System.Drawing.Point(4, 230);
+            this.bCopy.Margin = new System.Windows.Forms.Padding(4);
             this.bCopy.Name = "bCopy";
             this.bCopy.Size = new System.Drawing.Size(92, 28);
             this.bCopy.TabIndex = 5;
@@ -93,8 +96,8 @@
             // 
             // bSave
             // 
-            this.bSave.Location = new System.Drawing.Point(5, 148);
-            this.bSave.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.bSave.Location = new System.Drawing.Point(4, 195);
+            this.bSave.Margin = new System.Windows.Forms.Padding(4);
             this.bSave.Name = "bSave";
             this.bSave.Size = new System.Drawing.Size(92, 28);
             this.bSave.TabIndex = 4;
@@ -117,7 +120,7 @@
             // nWidth
             // 
             this.nWidth.Location = new System.Drawing.Point(5, 55);
-            this.nWidth.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.nWidth.Margin = new System.Windows.Forms.Padding(4);
             this.nWidth.Name = "nWidth";
             this.nWidth.Size = new System.Drawing.Size(53, 22);
             this.nWidth.TabIndex = 2;
@@ -131,7 +134,7 @@
             // button1
             // 
             this.button1.Location = new System.Drawing.Point(5, 4);
-            this.button1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.button1.Margin = new System.Windows.Forms.Padding(4);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(55, 28);
             this.button1.TabIndex = 1;
@@ -142,7 +145,7 @@
             // tbText
             // 
             this.tbText.Location = new System.Drawing.Point(17, 16);
-            this.tbText.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.tbText.Margin = new System.Windows.Forms.Padding(4);
             this.tbText.Name = "tbText";
             this.tbText.Size = new System.Drawing.Size(505, 22);
             this.tbText.TabIndex = 2;
@@ -162,7 +165,7 @@
             this.lSize.Text = "XxY";
             this.lSize.Visible = false;
             // 
-            // Form1
+            // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -172,10 +175,10 @@
             this.Controls.Add(this.tbText);
             this.Controls.Add(this.pDrawSettings);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
-            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.Margin = new System.Windows.Forms.Padding(4);
             this.MaximizeBox = false;
             this.MinimizeBox = false;
-            this.Name = "Form1";
+            this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
             this.Text = "Form1";
             this.Load += new System.EventHandler(this.Form1_Load);

@@ -2,7 +2,7 @@
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace ScreenCut
+namespace ScreenCut.Tools
 {
     /*
      * Text drawing tool
@@ -13,26 +13,31 @@ namespace ScreenCut
      * Press Escape to cancel
      */
 
-    internal class ToolText : IDrawTool
+    internal class ToolText : ITool
     {
         public void MouseDoubleClick(MainForm form) { }
 
-        public void MouseDownDrawing(MainForm form) { }
-
-        public void MouseDownNotDrawing(MainForm form)
+        public void MouseDown(MainForm form)
         {
-            var tbText = form.GetTextBox();
-            tbText.Visible = true;
-            tbText.Left = Control.MousePosition.X;
-            tbText.Top = Control.MousePosition.Y - 4;
-            tbText.Focus();
-            tbText.Height = (int)form.dpWidth;
-            tbText.Font = new Font(tbText.Font.FontFamily, form.dpWidth);
+            if (!form.isDrawing)
+            {
+                form.isDrawing = true;
+
+                var tbText = form.GetTextBox();
+                tbText.Visible = true;
+                tbText.Left = Control.MousePosition.X;
+                tbText.Top = Control.MousePosition.Y - 4;
+                tbText.Focus();
+                tbText.Height = (int)form.drawingPen.Width;
+                tbText.Font = new Font(tbText.Font.FontFamily, form.drawingPen.Width);
+            }
         }
 
-        public void MouseUpDrawing(MainForm form) { }
+        public void MouseUp(MainForm form) { }
 
-        public void Paint(MainForm form, Graphics gr, Point mousePosition)
+        public void MouseMove(MainForm form, Point position) { }
+
+        public void Paint(MainForm form, Graphics gr)
         {
             if (form.updateDraw)
             {
@@ -42,7 +47,7 @@ namespace ScreenCut
             form.isDrawing = false;
         }
 
-        public void PostPaint(MainForm form, Graphics gr) { }
+        public void ScreenPaint(MainForm form, Graphics gr) { }
 
         public void TextBox_KeyDown(MainForm form, KeyEventArgs e)
         {
@@ -61,5 +66,9 @@ namespace ScreenCut
                 tbText.Text = "";
             }
         }
+
+        public void Selected(MainForm form) { }
+
+        public void Unselected(MainForm form) { }
     }
 }

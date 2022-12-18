@@ -58,11 +58,12 @@
             "Text",
             "Rectangle",
             "Arrow",
-            "Color Picker"});
+            "Color Picker",
+            "Censor"});
             this.lbDraw.Location = new System.Drawing.Point(5, 87);
             this.lbDraw.Margin = new System.Windows.Forms.Padding(4);
             this.lbDraw.Name = "lbDraw";
-            this.lbDraw.Size = new System.Drawing.Size(92, 100);
+            this.lbDraw.Size = new System.Drawing.Size(92, 116);
             this.lbDraw.TabIndex = 0;
             this.lbDraw.SelectedIndexChanged += new System.EventHandler(this.LbDraw_SelectedIndexChanged);
             // 
@@ -85,7 +86,7 @@
             // 
             // bCopy
             // 
-            this.bCopy.Location = new System.Drawing.Point(4, 230);
+            this.bCopy.Location = new System.Drawing.Point(5, 246);
             this.bCopy.Margin = new System.Windows.Forms.Padding(4);
             this.bCopy.Name = "bCopy";
             this.bCopy.Size = new System.Drawing.Size(92, 28);
@@ -96,7 +97,7 @@
             // 
             // bSave
             // 
-            this.bSave.Location = new System.Drawing.Point(4, 195);
+            this.bSave.Location = new System.Drawing.Point(5, 211);
             this.bSave.Margin = new System.Windows.Forms.Padding(4);
             this.bSave.Name = "bSave";
             this.bSave.Size = new System.Drawing.Size(92, 28);
@@ -125,7 +126,7 @@
             this.nWidth.Size = new System.Drawing.Size(53, 22);
             this.nWidth.TabIndex = 2;
             this.nWidth.Value = new decimal(new int[] {
-            3,
+            5,
             0,
             0,
             0});

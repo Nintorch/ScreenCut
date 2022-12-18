@@ -6,13 +6,14 @@ using System.Runtime.InteropServices;
 using System.Collections.Generic;
 
 using ScreenCut.Tools;
+using System.Net.Http.Headers;
 
 namespace ScreenCut
 {
     public partial class MainForm : Form
     {
         // TODO: fix multiple screen support
-        // TODO: allow the selection to be repositionable, size needs to be cropped if went out of screen
+        // TODO: selected area size needs to be cropped if went out of screen
         // TODO: First reposition and drawing after selecting drawing
         // TODO: size changable from corners and middle of dimensions
         // TODO: make the displayed size not go out of the screen
@@ -20,14 +21,15 @@ namespace ScreenCut
 
         // TODO: icon for each draw tool
         // TODO: allow selecting draw tool mode like in photoshop with little settings icon
+        // TODO: color picker cursor image
 
-        // TODO: censor tool: rectangle mode and custom - several levels of blurriness
+        // TODO: optimize censor tool to use less RAM
 
         // DLL libraries used to manage hotkeys
         [DllImport("user32.dll")]
-        public static extern bool RegisterHotKey(IntPtr hWnd, int id, int fsModifiers, int vlc);
+        private static extern bool RegisterHotKey(IntPtr hWnd, int id, int fsModifiers, int vlc);
         [DllImport("user32.dll")]
-        public static extern bool UnregisterHotKey(IntPtr hWnd, int id);
+        private static extern bool UnregisterHotKey(IntPtr hWnd, int id);
         const int HotKeyID = 1;
 
         public bool init = false;
@@ -37,6 +39,7 @@ namespace ScreenCut
         public bool selecting;
         public Rectangle ssRect;
         public Pen selectingPen;
+        public Pen selectingPen2;
 
         public Point mousePositionPrev;
 
@@ -44,9 +47,9 @@ namespace ScreenCut
         public Pen drawingPen;
         public bool updateDraw;
 
-        private Screen currentScreen = Screen.PrimaryScreen;
-        private Point currentScreenOffset;
-        private Size currentScreenSize = Screen.PrimaryScreen.Bounds.Size;
+        public Screen currentScreen = Screen.PrimaryScreen;
+        public Point currentScreenOffset;
+        public Size currentScreenSize = Screen.PrimaryScreen.Bounds.Size;
 
         public enum ToolType
         {
@@ -57,6 +60,7 @@ namespace ScreenCut
             DrawArrow,
 
             ColorPicker,
+            Censor,
         }
 
         /* The list of all available tools. */
@@ -69,6 +73,7 @@ namespace ScreenCut
             { ToolType.DrawArrow, new ToolArrow() },
 
             { ToolType.ColorPicker, new ToolColorPicker() },
+            { ToolType.Censor, new ToolCensor() },
         };
 
         private readonly ITool emptyTool = new ToolEmpty();
@@ -83,14 +88,19 @@ namespace ScreenCut
                 ControlStyles.OptimizedDoubleBuffer, true);
             UpdateStyles();
 
+            // Register the summon hotkey
             RegisterHotKey(Handle, HotKeyID, 0, (int)Keys.F6);
         }
 
         protected override void WndProc(ref Message m)
         {
+            // Summon hotkey was pressed
             if (m.Msg == 0x0312 && m.WParam.ToInt32() == HotKeyID && !Visible)
             {
                 currentScreenSize = Screen.FromPoint(Point.Empty).Bounds.Size;
+
+                // Get the correct screen offset by iterating through Screen.AllScreens
+                // (Screen.FromPoint doesn't give correct position values somewhy)
                 foreach (Screen s in Screen.AllScreens)
                 {
                     if (s.Bounds.Contains(MousePosition))
@@ -111,19 +121,21 @@ namespace ScreenCut
             base.WndProc(ref m);
         }
 
-        // Initialize program..
         private void Form1_Load(object sender, EventArgs e)
         {
-            float[] dashValues = { 5, 5 };
             selectingPen = new Pen(Color.White)
             {
                 Width = 2,
-                DashPattern = dashValues
+                DashPattern = new float[]{ 5, 5 }
+            };
+            selectingPen2 = new Pen(Color.White)
+            {
+                Width = 2
             };
 
-            UpdateDrawingPen(Color.Red, 3);
+            UpdateDrawingPen(Color.Red, (int)nWidth.Value);
 
-            mousePositionPrev = new Point();
+            mousePositionPrev = Point.Empty;
 
             foreach (Control c in pDrawSettings.Controls)
             {
@@ -132,6 +144,7 @@ namespace ScreenCut
 
             currentTool = emptyTool;
 
+            // Setup the custom update interval
             Timer timer = new Timer
             {
                 Interval = 10
@@ -140,25 +153,31 @@ namespace ScreenCut
             timer.Start();
         }
 
-        private void Form1_Paint(object sender, PaintEventArgs e)
+        private void InitialScreenshot()
         {
             // Make screenshot and make
             // the form invisible when opened
             // (because it doesn't work in Form1_Load
             // or form constructor)
+
+            HideForm();
+            MakeScreenshot();
+
+            ColorMatrix m = new ColorMatrix
+            {
+                Matrix33 = 0.5f
+            };
+            ia = new ImageAttributes();
+            ia.SetColorMatrix(m, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
+            return;
+        }
+
+        private void Form1_Paint(object sender, PaintEventArgs e)
+        {
             if (!init)
             {
+                InitialScreenshot();
                 init = true;
-                HideForm();
-                MakeScreenshot();
-
-                ColorMatrix m = new ColorMatrix
-                {
-                    Matrix33 = 0.5f
-                };
-                ia = new ImageAttributes();
-                ia.SetColorMatrix(m, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
-                return;
             }
 
             // Draw stuff from user
@@ -177,22 +196,45 @@ namespace ScreenCut
 
             currentTool.ScreenPaint(this, g);
 
+            DrawSelectedAreaBorder(g);
+        }
+
+        private void DrawSelectedAreaBorder(Graphics g)
+        {
+            // Draw stroke around selected area
             g.DrawRectangle(selectingPen, ssRect);
-        }
 
-        public TextBox GetTextBox()
-        {
-            return tbText;
-        }
+            // Top-left corner
+            g.DrawLine(selectingPen2, ssRect.Left - 5, ssRect.Top - 5, ssRect.Left + 5, ssRect.Top - 5);
+            g.DrawLine(selectingPen2, ssRect.Left - 5, ssRect.Top - 5, ssRect.Left - 5, ssRect.Top + 5);
 
-        public Panel GetDrawSettings()
-        {
-            return pDrawSettings;
-        }
+            // Top-right corner
+            g.DrawLine(selectingPen2, ssRect.Right + 5, ssRect.Top - 5, ssRect.Right - 5, ssRect.Top - 5);
+            g.DrawLine(selectingPen2, ssRect.Right + 5, ssRect.Top - 5, ssRect.Right + 5, ssRect.Top + 5);
 
-        public Label GetSizeLabel()
-        {
-            return lSize;
+            // Down-left corner
+            g.DrawLine(selectingPen2, ssRect.Left - 5, ssRect.Bottom + 5, ssRect.Left + 5, ssRect.Bottom + 5);
+            g.DrawLine(selectingPen2, ssRect.Left - 5, ssRect.Bottom + 5, ssRect.Left - 5, ssRect.Bottom - 5);
+
+            // Down-right corner
+            g.DrawLine(selectingPen2, ssRect.Right + 5, ssRect.Bottom + 5, ssRect.Right - 5, ssRect.Bottom + 5);
+            g.DrawLine(selectingPen2, ssRect.Right + 5, ssRect.Bottom + 5, ssRect.Right + 5, ssRect.Bottom - 5);
+
+            // Top middle
+            g.DrawLine(selectingPen2, ssRect.Left + ssRect.Width / 2 - 5, ssRect.Top - 5,
+                 ssRect.Left + ssRect.Width / 2 + 5, ssRect.Top - 5);
+
+            // Down middle
+            g.DrawLine(selectingPen2, ssRect.Left + ssRect.Width / 2 - 5, ssRect.Bottom + 5,
+                 ssRect.Left + ssRect.Width / 2 + 5, ssRect.Bottom + 5);
+
+            // Left middle
+            g.DrawLine(selectingPen2, ssRect.Left - 5, ssRect.Top + ssRect.Height / 2 - 5,
+                ssRect.Left - 5, ssRect.Top + ssRect.Height / 2 + 5);
+
+            // Right middle
+            g.DrawLine(selectingPen2, ssRect.Right + 5, ssRect.Top + ssRect.Height / 2 - 5,
+                ssRect.Right + 5, ssRect.Top + ssRect.Height / 2 + 5);
         }
 
         private void MouseMoveEvent(object sender, EventArgs e)
@@ -214,7 +256,7 @@ namespace ScreenCut
 
         private void Form1_MouseDown(object sender, MouseEventArgs e)
         {
-            if (ssRect.IntersectsWith(new Rectangle(e.Location,new Size(1,1))))
+            if (ssRect.Contains(e.Location))
             {
                 currentTool.MouseDown(this);
             }
@@ -259,7 +301,7 @@ namespace ScreenCut
                 BCopy_Click(null, null);
             else if (e.KeyCode == Keys.A && e.Modifiers == Keys.Control)
             {
-                ssRect = Screen.PrimaryScreen.Bounds;
+                ssRect = currentScreen.Bounds;
                 lSize.Top = -lSize.Height - 5;
                 Refresh();
             }
@@ -273,6 +315,54 @@ namespace ScreenCut
         private void Form1_DoubleClick(object sender, EventArgs e)
         {
             currentTool.MouseDoubleClick(this);
+        }
+
+        private void LbDraw_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (lbDraw.SelectedIndex >= 0 && lbDraw.SelectedIndex < drawTools.Count)
+            {
+                currentTool.Unselected(this);
+                currentTool = drawTools[(ToolType)lbDraw.SelectedIndex];
+                currentTool.Selected(this);
+            }
+            isDrawing = false;
+        }
+
+        private void Button1_Click(object sender, EventArgs e)
+        {
+            if (colorDialog1.ShowDialog() == DialogResult.OK)
+            {
+                UpdateDrawingPen(colorDialog1.Color, drawingPen.Width);
+            }
+        }
+
+        private void NWidth_ValueChanged(object sender, EventArgs e)
+        {
+            UpdateDrawingPen(drawingPen.Color, (float)nWidth.Value);
+        }
+
+        private void BSave_Click(object sender, EventArgs e)
+        {
+            if (dSaveScreenshot.ShowDialog() == DialogResult.OK)
+            {
+                GetClippedScreenshot().Save(dSaveScreenshot.FileName);
+                HideForm();
+            }
+        }
+
+        private void BCopy_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                Clipboard.SetImage(GetClippedScreenshot());
+            }
+            catch (ExternalException)
+            {
+                MessageBox.Show(
+                    "Can't copy the screenshot at the moment because clipboard is being used by another process. Try again later."
+                    );
+            }
+            HideForm();
         }
 
         private void MakeScreenshot()
@@ -332,7 +422,7 @@ namespace ScreenCut
             Visible = false;
             pDrawSettings.Visible = false;
             isDrawing = false;
-            ssRect = new Rectangle(0, 0, 0, 0);
+            ssRect = Rectangle.Empty;
             lbDraw.SelectedIndex = -1;
             lSize.Visible = false;
 
@@ -340,52 +430,19 @@ namespace ScreenCut
             currentTool = emptyTool;
         }
 
-        private void LbDraw_SelectedIndexChanged(object sender, EventArgs e)
+        public TextBox GetTextBox()
         {
-            if (lbDraw.SelectedIndex >= 0 && lbDraw.SelectedIndex < drawTools.Count)
-            {
-                currentTool.Unselected(this);
-                currentTool = drawTools[(ToolType)lbDraw.SelectedIndex];
-                currentTool.Selected(this);
-            }
-            isDrawing = false;
+            return tbText;
         }
 
-        private void Button1_Click(object sender, EventArgs e)
+        public Panel GetDrawSettings()
         {
-            if (colorDialog1.ShowDialog() == DialogResult.OK)
-            {
-                UpdateDrawingPen(colorDialog1.Color, drawingPen.Width);
-            }
+            return pDrawSettings;
         }
 
-        private void NWidth_ValueChanged(object sender, EventArgs e)
+        public Label GetSizeLabel()
         {
-            UpdateDrawingPen(drawingPen.Color, (float)nWidth.Value);
-        }
-
-        private void BSave_Click(object sender, EventArgs e)
-        {
-            if (dSaveScreenshot.ShowDialog() == DialogResult.OK)
-            {
-                GetClippedScreenshot().Save(dSaveScreenshot.FileName);
-                HideForm();
-            }
-        }
-
-        private void BCopy_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                Clipboard.SetImage(GetClippedScreenshot());
-            }
-            catch (ExternalException)
-            {
-                MessageBox.Show(
-                    "Can't copy the screenshot at the moment because clipboard is being used by another process. Try again later."
-                    );
-            }
-            HideForm();
+            return lSize;
         }
     }
 }

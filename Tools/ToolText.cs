@@ -28,8 +28,8 @@ namespace ScreenCut.Tools
                 tbText.Left = Control.MousePosition.X;
                 tbText.Top = Control.MousePosition.Y - 4;
                 tbText.Focus();
-                tbText.Height = (int)form.drawingPen.Width;
-                tbText.Font = new Font(tbText.Font.FontFamily, form.drawingPen.Width);
+                tbText.Height = (int)form.drawingPen.Width+5;
+                tbText.Font = new Font(tbText.Font.FontFamily, form.drawingPen.Width+5);
             }
         }
 

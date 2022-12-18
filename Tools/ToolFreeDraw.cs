@@ -40,6 +40,9 @@ namespace ScreenCut.Tools
             var width = form.drawingPen.Width;
             gr.DrawLine(form.drawingPen, form.mousePositionPrev, mouse);
             gr.FillEllipse(form.drawingPen.Brush, mouse.X - width / 2, mouse.Y - width / 2, width, width);
+            gr.FillEllipse(form.drawingPen.Brush,
+                form.mousePositionPrev.X - width / 2,
+                form.mousePositionPrev.Y - width / 2, width, width);
             form.mousePositionPrev = mouse;
         }
 

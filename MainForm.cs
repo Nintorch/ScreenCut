@@ -21,7 +21,6 @@ namespace ScreenCut
 
         // TODO: icon for each draw tool
         // TODO: allow selecting draw tool mode like in photoshop with little settings icon
-        // TODO: color picker cursor image
 
         // TODO: optimize censor tool to use less RAM
 
